@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gemini Enterprise — Legal &amp; Contract Redlining Agent</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-2: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --blue: #4285f4;
+      --green: #34a853;
+      --yellow: #fbbc04;
+      --red: #ea4335;
+      --purple: #a855f7;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 28px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      box-shadow: 0 0 12px var(--purple);
+    }
+    .brand h1 { margin: 0; font-size: 18px; font-weight: 700; }
+    .brand span { color: var(--muted); font-size: 13px; }
+    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    select {
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid var(--blue);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .badge {
+      font-size: 12px; font-weight: 600; padding: 4px 10px;
+      border-radius: 999px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text);
+    }
+    .badge.ok { border-color: var(--green); color: #86efac; }
+    .badge.warn { border-color: var(--yellow); color: #fde047; }
+    .container { max-width: 1380px; margin: 0 auto; padding: 22px 28px 60px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .chip {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .chip:hover { border-color: var(--blue); background: #1e3a5f; }
+    .chip.rbac-test { border-color: var(--yellow); color: #fde047; }
+    textarea, input[type="text"], input[type="number"] {
+      width: 100%;
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .meta-row {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .btn-row { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
+    button.primary {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.approve-btn {
+      background: rgba(52, 168, 83, 0.2);
+      color: #86efac;
+      border: 1px solid var(--green);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.reject-btn {
+      background: rgba(234, 67, 53, 0.15);
+      color: #fca5a5;
+      border: 1px solid var(--red);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 960px) { .split { grid-template-columns: 1fr; } }
+
+    .answer-box { white-space: pre-wrap; font-size: 14px; line-height: 1.65; color: #e2e8f0; }
+    .error-banner {
+      background: rgba(234, 67, 53, 0.12);
+      border: 1px solid var(--red);
+      color: #fecaca;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .ok-banner {
+      background: rgba(52, 168, 83, 0.12);
+      border: 1px solid var(--green);
+      color: #bbf7d0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .item-box {
+      border: 1px solid var(--border);
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    .item-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: 600; flex-wrap: wrap; }
+    .pill {
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 11px;
+      background: rgba(66, 133, 244, 0.2);
+      color: #93c5fd;
+    }
+    .pill.CRITICAL { background: rgba(234, 67, 53, 0.25); color: #fca5a5; }
+    .pill.HIGH { background: rgba(251, 188, 4, 0.2); color: #fde047; }
+    .pill.APPROVED { background: rgba(52, 168, 83, 0.25); color: #86efac; }
+    .pill.REJECTED { background: rgba(234, 67, 53, 0.25); color: #fca5a5; }
+    .pill.PENDING_APPROVAL { background: rgba(168, 85, 247, 0.25); color: #d8b4fe; }
+    pre {
+      margin: 6px 0 0;
+      padding: 10px;
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+    .tabs { display: flex; gap: 10px; margin-bottom: 12px; }
+    .tab-btn {
+      background: var(--surface-2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .tab-btn.active { color: var(--text); border-color: var(--blue); background: #1e3a5f; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <div>
+        <h1>Gemini Enterprise — Legal &amp; Contract Redlining Agent</h1>
+        <span>Playbook-Grounded Audit + RBAC Policy Enforcement + HITL Legal Sign-Off (OpenAPI 3.0 Connector)</span>
+      </div>
+    </div>
+    <div class="controls">
+      <label for="role-select" style="font-size:12px; color:#94a3b8;">Active RBAC Persona:</label>
+      <select id="role-select" onchange="bootstrap()">
+        <option value="sales_rep">Commercial Sales Rep</option>
+        <option value="legal_counsel">Senior Legal Counsel</option>
+        <option value="general_counsel">General Counsel / VP Legal</option>
+      </select>
+      <span id="rbac-badge" class="badge">Playbook: ...</span>
+      <span id="auth-badge" class="badge">Gemini: ...</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>
+        <span>1. Load Sample Contract Draft or Run RBAC Policy Test</span>
+        <span style="font-size:12px;"><a href="/docs" target="_blank" style="color:#93c5fd;">OpenAPI 3.0 Connector Docs (/docs)</a></span>
+      </h2>
+      <div class="chips" id="sample-chips"></div>
+      <div class="meta-row">
+        <input type="text" id="contract-id" placeholder="Contract ID (e.g., CTR-2026-MSA-01)" />
+        <input type="text" id="counterparty" placeholder="Counterparty Name" />
+        <input type="number" id="contract-value" placeholder="Contract Value USD" value="450000" />
+      </div>
+      <textarea id="contract-text" rows="6" placeholder="Paste MSA, NDA, or DPA clauses here (or click a sample contract above)..."></textarea>
+      <div class="btn-row">
+        <input type="text" id="prompt-input" value="Audit this contract against our corporate Legal Playbook, quantify risk exposure, and stage HITL redlines for all HIGH/CRITICAL deviations." />
+        <button class="primary" id="audit-btn" onclick="runAudit()">Run Playbook Audit &amp; Stage Redlines</button>
+      </div>
+    </section>
+
+    <section class="split">
+      <div class="card">
+        <h2>
+          <span>2. Grounded Legal Audit &amp; Redline Report</span>
+          <span id="latency-meta" style="font-size:12px; color:#94a3b8;"></span>
+        </h2>
+        <div id="answer-output" class="answer-box">
+          Select a sample contract above and click "Run Playbook Audit &amp; Stage Redlines". The Gemini Enterprise Agent will check each clause against your RBAC-visible Legal Playbook, calculate risk exposure, and stage redlines for human Legal sign-off.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>Auditable Tool-Call Trajectory</span>
+          <span id="trace-count" style="font-size:12px; color:#94a3b8;">0 tool calls</span>
+        </h2>
+        <div id="trace-output" style="color:#94a3b8; font-size:13px;">
+          Every `search_legal_playbook`, `evaluate_clause_risk`, and `stage_redline_approval` invocation is logged here with RBAC redaction counts and latency.
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('approvals', this)">3. HITL Legal Approval Queue (RBAC Enforced)</button>
+        <button class="tab-btn" onclick="switchTab('playbook', this)">Visible Legal Playbook (RBAC Filtered)</button>
+        <button class="tab-btn" onclick="switchTab('connector', this)">Gemini Enterprise Custom Action (OpenAPI 3.0)</button>
+      </div>
+
+      <div id="tab-approvals">
+        <div id="approval-feedback"></div>
+        <div id="approvals-list"></div>
+      </div>
+
+      <div id="tab-playbook" class="hidden"></div>
+
+      <div id="tab-connector" class="hidden">
+        <div class="item-box">
+          <div class="item-head">
+            <span>Registering this Python Agent inside Gemini Enterprise (Agent Designer / Custom Actions)</span>
+            <span class="pill">OpenAPI 3.0</span>
+          </div>
+          <p style="color:#cbd5e1; margin:0 0 8px;">
+            Deploy this FastAPI service to Cloud Run (or expose it via HTTPS), import <code>/openapi.json</code> into <strong>Gemini Enterprise Custom Actions</strong>, and map the user's Google Workspace / Cloud Identity group to <code>user_role</code>:
+          </p>
+          <pre>POST /api/ge/audit-contract
+GET  /api/ge/approvals
+POST /api/ge/approvals/{approval_id}/decide
+GET  /openapi.json  (Auto-generated OpenAPI 3.0 specification)</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let sampleContracts = [];
+
+    async function bootstrap() {
+      const role = document.getElementById('role-select').value;
+      const res = await fetch(`/api/bootstrap?user_role=${encodeURIComponent(role)}`);
+      const data = await res.json();
+      sampleContracts = data.sample_contracts;
+
+      const rbacBadge = document.getElementById('rbac-badge');
+      rbacBadge.textContent = `Playbook: ${data.playbook.visible_count} visible (${data.playbook.rbac_hidden_count} restricted)`;
+      rbacBadge.className = data.playbook.rbac_hidden_count > 0 ? 'badge warn' : 'badge ok';
+
+      const aBadge = document.getElementById('auth-badge');
+      if (data.ai_auth.ready) {
+        aBadge.textContent = `Gemini (${data.ai_auth.mode}): ${data.ai_auth.model}`;
+        aBadge.className = 'badge ok';
+      } else {
+        aBadge.textContent = 'Gemini: Configure Vertex AI / API Key';
+        aBadge.className = 'badge warn';
+      }
+
+      const chipsEl = document.getElementById('sample-chips');
+      chipsEl.innerHTML = sampleContracts.map((c, idx) => `
+        <button class="chip" onclick="loadSample(${idx})">${idx + 1}. ${c.title}</button>
+      `).join('') + `
+        <button class="chip rbac-test" onclick="runRBACTest()">Live RBAC Security Test: Ask About Restricted M&amp;A Exceptions</button>
+      `;
+
+      renderPlaybook(data.playbook.rules);
+      renderApprovals(data.approvals);
+    }
+
+    function loadSample(idx) {
+      const c = sampleContracts[idx];
+      document.getElementById('contract-id').value = c.contract_id;
+      document.getElementById('counterparty').value = c.counterparty;
+      document.getElementById('contract-value').value = c.contract_value_usd;
+      document.getElementById('contract-text').value = c.text;
+      document.getElementById('prompt-input').value =
+        'Audit this contract against our corporate Legal Playbook, quantify risk exposure, and stage HITL redlines for all HIGH/CRITICAL deviations.';
+    }
+
+    function runRBACTest() {
+      document.getElementById('contract-id').value = '';
+      document.getElementById('counterparty').value = '';
+      document.getElementById('contract-text').value = '';
+      document.getElementById('prompt-input').value =
+        'What are our restricted Board-authorized M&A indemnity exception thresholds and 3x ACV fallback multipliers under Project Aurora?';
+      runAudit();
+    }
+
+    async function runAudit() {
+      const btn = document.getElementById('audit-btn');
+      const out = document.getElementById('answer-output');
+      const traceEl = document.getElementById('trace-output');
+      const role = document.getElementById('role-select').value;
+
+      btn.disabled = true;
+      btn.textContent = 'Auditing...';
+      out.textContent = 'Running Gemini Enterprise Legal Playbook audit & staging HITL redlines...';
+      traceEl.innerHTML = '';
+
+      try {
+        const res = await fetch('/api/ge/audit-contract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: document.getElementById('prompt-input').value,
+            user_role: role,
+            contract_id: document.getElementById('contract-id').value || null,
+            counterparty: document.getElementById('counterparty').value || null,
+            contract_value_usd: Number(document.getElementById('contract-value').value || 250000),
+            contract_text: document.getElementById('contract-text').value || null
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          out.innerHTML = `<div class="error-banner">${data.detail || 'Audit failed'}</div>`;
+          return;
+        }
+        out.textContent = data.answer_markdown;
+        document.getElementById('latency-meta').textContent = `${data.model} • role=${data.caller_role} • ${data.total_duration_ms} ms`;
+        document.getElementById('trace-count').textContent = `${data.trace.length} tool call(s)`;
+
+        traceEl.innerHTML = data.trace.map((s, i) => `
+          <div class="item-box">
+            <div class="item-head">
+              <span>#${i + 1} <span class="pill">${s.tool}</span></span>
+              <span style="color:#94a3b8;">Round ${s.round} • ${s.duration_ms} ms</span>
+            </div>
+            <pre>${JSON.stringify(s.arguments, null, 2)}</pre>
+            <pre>${JSON.stringify(s.result, null, 2).slice(0, 800)}${JSON.stringify(s.result).length > 800 ? '\n... (truncated)' : ''}</pre>
+          </div>
+        `).join('');
+
+        if (data.approvals) renderApprovals(data.approvals);
+      } catch (err) {
+        out.innerHTML = `<div class="error-banner">Network error: ${err}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Playbook Audit & Stage Redlines';
+      }
+    }
+
+    function renderApprovals(approvals) {
+      const el = document.getElementById('approvals-list');
+      if (!approvals || !approvals.length) {
+        el.innerHTML = '<div style="color:#94a3b8; font-size:13px;">No redlines staged yet. Run a contract audit above to stage HIGH/CRITICAL clauses for human Legal sign-off.</div>';
+        return;
+      }
+      el.innerHTML = approvals.map(a => `
+        <div class="item-box">
+          <div class="item-head">
+            <span>
+              <span class="pill">${a.approval_id}</span>
+              <span class="pill ${a.risk_level}">${a.risk_level}</span>
+              <span class="pill ${a.status}">${a.status}</span>
+              ${a.contract_id} — ${a.clause_title} (${a.counterparty})
+            </span>
+            <span style="color:#94a3b8;">Rule: ${a.playbook_rule_id}</span>
+          </div>
+          <div style="color:#fca5a5; margin-bottom:6px;"><strong>Original:</strong> ${a.original_text}</div>
+          <div style="color:#86efac; margin-bottom:6px;"><strong>Proposed Redline:</strong> ${a.proposed_redline}</div>
+          <div style="color:#94a3b8; margin-bottom:8px;"><strong>Rationale:</strong> ${a.rationale}</div>
+          ${a.status === 'PENDING_APPROVAL' ? `
+            <div style="display:flex; gap:8px;">
+              <button class="approve-btn" onclick="decide('${a.approval_id}', 'APPROVED')">Approve Redline (Active Persona)</button>
+              <button class="reject-btn" onclick="decide('${a.approval_id}', 'REJECTED')">Reject Redline</button>
+            </div>
+          ` : `<div style="font-size:12px; color:#94a3b8;">Decided by <code>${a.decided_by_role}</code> at ${a.decided_at}</div>`}
+        </div>
+      `).join('');
+    }
+
+    async function decide(approvalId, decision) {
+      const role = document.getElementById('role-select').value;
+      const fb = document.getElementById('approval-feedback');
+      const res = await fetch(`/api/ge/approvals/${approvalId}/decide`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision, user_role: role, reviewer_note: `Reviewed via UI as ${role}` })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        fb.innerHTML = `<div class="error-banner">HTTP ${res.status} — ${data.detail}</div>`;
+        return;
+      }
+      fb.innerHTML = `<div class="ok-banner">Success: ${approvalId} marked ${decision} by <code>${role}</code>.</div>`;
+      renderApprovals(data.approvals);
+    }
+
+    function renderPlaybook(rules) {
+      document.getElementById('tab-playbook').innerHTML = rules.map(r => `
+        <div class="item-box">
+          <div class="item-head">
+            <span><span class="pill">${r.rule_id}</span> ${r.title}</span>
+            <span style="color:#94a3b8;">${r.category}</span>
+          </div>
+          <div style="color:#cbd5e1; margin-bottom:4px;"><strong>Standard:</strong> ${r.standard_position}</div>
+          <div style="color:#94a3b8;"><strong>Fallback:</strong> ${r.fallback_position}</div>
+        </div>
+      `).join('');
+    }
+
+    function switchTab(name, btn) {
+      ['approvals', 'playbook', 'connector'].forEach(t => document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== name));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    bootstrap().then(() => loadSample(0));
+  </script>
+</body>
+</html>
